@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_firebase/screen/display.dart';
 import 'package:flutter_firebase/screen/formscreen.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-void main() {
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(const MyApp());
 }
 
@@ -36,7 +40,7 @@ class _MyHomePageState extends State<MyHomePage> {
       child: Scaffold(
         body: TabBarView(children: [
           FormScreen(),
-          Container(),
+          DisplayScreen(),
         ]),
         backgroundColor: Colors.red[900],
         bottomNavigationBar: TabBar(tabs: [
@@ -44,7 +48,7 @@ class _MyHomePageState extends State<MyHomePage> {
             text: "Submit",
           ),
           Tab(
-            text: "Name Student",
+            text: "Report",
           ),
         ]),
       ),

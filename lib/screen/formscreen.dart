@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_firebase/model/Student.dart';
 import 'package:form_field_validator/form_field_validator.dart';
@@ -10,13 +12,35 @@ class FormScreen extends StatefulWidget {
 }
 
 class _FormScreenState extends State<FormScreen> {
+  final Future<FirebaseApp> firebase = Firebase.initializeApp();
   final formKey = GlobalKey<FormState>();
 
   Student myStudent = Student();
 
+
+  CollectionReference _studentCollection = FirebaseFirestore.instance.collection("students");
+
+
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return FutureBuilder(
+        future: firebase,
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Scaffold(
+              appBar: AppBar(
+                title: Text("Error"),
+              ),
+              body: Center(
+                child: Text(
+                  "${snapshot.error}",
+                ),
+              ),
+            );
+          }
+          if(snapshot.connectionState == ConnectionState.done){
+            return Scaffold(
       appBar: AppBar(
         title: Text("Scorce Quiz Form"),
       ),
@@ -96,12 +120,17 @@ class _FormScreenState extends State<FormScreen> {
                         "Submit",
                         style: TextStyle(fontSize: 18),
                       ),
-                      onPressed: () {
+                      onPressed: () async{
                         if (formKey.currentState!.validate()) {
                           formKey.currentState!.save();
-                          print(
-                              "Data = ${myStudent.fname} ${myStudent.lname} ${myStudent.email} ${myStudent.score}");
-                        }
+                          await _studentCollection.add({
+                            "fname":myStudent.fname,
+                            "lanem":myStudent.lname,
+                            "email":myStudent.email,
+                            "score":myStudent.score,
+                          });
+                          formKey.currentState!.reset();
+                          }
                       },
                     ),
                   )
@@ -112,5 +141,13 @@ class _FormScreenState extends State<FormScreen> {
         ),
       ),
     );
+          }
+          return Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        });
+    
   }
 }
